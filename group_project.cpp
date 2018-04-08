@@ -93,7 +93,7 @@ int main()
 
 //*************************************
 // displayMenu function
-//
+// (This function currently works perfectly)
 //*************************************
 
 void displayMenu()
@@ -108,7 +108,7 @@ void displayMenu()
 
 //***************************************
 // getMenuChoice function
-//
+// (This function currently works perfectly)
 //***************************************
 
 int getMenuChoice()
@@ -128,7 +128,7 @@ int getMenuChoice()
 
 //***************************************
 // enterRecord function
-//
+// (this function currently works BUT IS MISSING INPUT VALIDATION)
 //***************************************
 
 int enterRecords(Customer person)
@@ -198,7 +198,7 @@ int enterRecords(Customer person)
 
 //***************************************
 // searchName function
-//
+// (THIS FUNCTION DOES NOT WORK PROPERLY AT ALL. THIS IS WHERE I NEED HELP)
 //***************************************
 
 int searchName (Customer person)
@@ -262,7 +262,7 @@ int searchName (Customer person)
 
 //***************************************
 // display Contents function
-//
+// (This Function currently works perfectly)
 //***************************************
 
 int displayContents(Customer person)
