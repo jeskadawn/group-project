@@ -1,4 +1,29 @@
 // Group project
+/*
+Write a program that uses structure to 
+store the following data about a customer account:
+
+Name
+Address
+City, State, and ZIP
+Telephone Number
+Account Balance
+Date of Last Payment
+
+The structure should be used to store customer account records in a file. 
+The program should have a menu that lets the user perform the following operations:
+
+* Enter new records into the file.
+* Search for a particular customer's record and display it.
+* Search for a particular customer's record and delete it.
+* Search for a particular customer's record and change it.
+* Display the contents of the entire file.
+
+Input validation: When the data for a new account is entered, 
+be sure the user enters data for all the fields. 
+No negative account balances should be entered.
+*/
+
 
 #include <iostream>
 #include <string>
