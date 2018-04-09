@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstdlib>
+#include <cstring>
 using namespace std;
 
 // Array sizes
@@ -36,14 +37,18 @@ void displayMenu();
 int getMenuChoice();
 int enterRecords(Customer);
 int searchName(Customer);
+int searchAndDisplay(Customer);
+int searchAndDelete(Customer);
+int searchAndChange(Customer);
+void showRecord(Customer);
 int displayContents(Customer);
 
 int main()
 {
-	int choice;
-	char again = 'N';
+	int choice;						// To hold the menu choice.
+	char again = 'N';				
 	
-	Customer person;
+	Customer person;				// Instance of Customer struct.
 	
 	do
 	{
@@ -56,31 +61,39 @@ int main()
 		
 		switch(choice)
 		{
-			case 1: enterRecords(person);
+			case 1: enterRecords(person);			// Allow user to enter a record.
 					break;
 					
-			case 2: searchName(person);
+			case 2: searchAndDisplay(person);		// Allow user to search for and display a record.
+					break;
+					
+			case 3: searchAndDelete(person);		// Allow user to search for and delete a record.
+					break;
+					
+			case 4: searchAndChange(person);		// Allow user to search for and change a record.
 					break;
 			
-			case 5: displayContents(person);
+			case 5: displayContents(person);		// Displays all of the file's contents.
 					break;
 			
-			case 6: cout << "Quitting program...";
+			case 6: cout << "Quitting program...";	// Terminates the program
 					return 0;
 					
 			default: cout << "That is an invalid choice.\n";
 		}
 
-	
+		// Ask if user wants to display the menu again.
 		cout << "\n\nDisplay menu again? Y or N: ";
 		cin >> again;
-		while (again != 'Y' && again != 'y' && again != 'N' && again != 'n')
+		
+		while (again != 'Y' && again != 'y' && again != 'N' && again != 'n')	// Input validation
 		{
 			cout << "Error. Please type either a Y or N: ";
 			cin >> again;
 		}
 		cin.ignore(); 	// Skip over the remaning newline	
 	} while (toupper(again) == 'Y');
+	
 	
 	
 	cout << "Program terminating...";
@@ -91,10 +104,10 @@ int main()
 }
 
 
-//*************************************
-// displayMenu function
-// (This function currently works perfectly)
-//*************************************
+//********************************************
+// 		displayMenu function
+// This function displays a menu for the user.
+//********************************************
 
 void displayMenu()
 {
@@ -107,15 +120,19 @@ void displayMenu()
 }
 
 //***************************************
-// getMenuChoice function
-// (This function currently works perfectly)
+// 		getMenuChoice function
+// This function gets the menu choice 
+// from the user.
 //***************************************
 
 int getMenuChoice()
 {
-	int choice;
+	int choice;						// To hold the choice.
+	
+	
 	cout << "\nMenu choice: ";
 	cin >> choice;
+	cin.ignore();
 	
 	while (choice < 1 || choice > 6)		//Input validation
 	{
@@ -127,13 +144,14 @@ int getMenuChoice()
 }
 
 //***************************************
-// enterRecord function
-// (this function currently works BUT IS MISSING INPUT VALIDATION)
+// 		enterRecord function
+// This function allows the user to enter
+// a whole new record for the file.
 //***************************************
 
 int enterRecords(Customer person)
 {
-	char again;
+	char again;				// To hold the user's choice for entering another record.
 	
 	//Open a file for binary output.
 	fstream records("records.dat", ios::out | ios::app | ios::binary);
@@ -142,7 +160,7 @@ int enterRecords(Customer person)
 	if (!records)
 	{
 		cout << "Error opening file. Program aborting.\n";
-		return 0;
+		return 0; 		// If there are issues opening the file, this will cause the function to stop.
 	}
 	
 	do
@@ -151,7 +169,6 @@ int enterRecords(Customer person)
 		cout << "Enter the following data about a person:\n";
 		
 		cout << "Name: ";
-		cin.ignore();
 		cin.getline(person.name, NAME_SIZE);
 		
 		cout << "Street Address: ";
@@ -182,7 +199,7 @@ int enterRecords(Customer person)
 		// Determine whether the user wants to write another record.
 		cout << "Do you want to enter another record? ";
 		cin >> again;
-		while (again != 'Y' && again != 'y' && again != 'N' && again != 'n')
+		while (again != 'Y' && again != 'y' && again != 'N' && again != 'n')		// Input validation
 		{
 			cout << "Error. Please type either a Y or N: ";
 			cin >> again;
@@ -196,20 +213,22 @@ int enterRecords(Customer person)
 	
 }
 
-//***************************************
-// searchName function
-// (THIS FUNCTION DOES NOT WORK PROPERLY AT ALL. THIS IS WHERE I NEED HELP)
-//***************************************
+//*****************************************************************
+// 		searchName function
+// This function asks the user for a name to search in the file. 
+// This function returns the position (pos) of the record if found.
+// It returns a -1 if not found.
+//******************************************************************
 
-int searchName (Customer person)
+int searchName(Customer person)
 {
-	char name[NAME_SIZE];
-	bool found = false;
-	int pos = 0;
+	char name[NAME_SIZE];			// To hold the name that the user wants to search for.
+	bool found = false;				// Flag 
+	int pos = 0;					// To hold the name's position.
+	
+	//Open the file
 	fstream records;
 	records.open("records.dat", ios::in | ios::binary);
-	
-	
 	
 	//Test for errors
 	if (!records)
@@ -220,54 +239,253 @@ int searchName (Customer person)
 	
 	// Prompt the user for a name to search for
 	cout << "What is the name of the person to search for?: ";
-	cin.ignore();
 	cin.getline(name, NAME_SIZE);
-	
 	
 	// Read the first record from the file
 	records.read(reinterpret_cast<char *>(&person), sizeof(person));
-	pos++;
-	
 	
 	while (!records.eof())
 	{
-		
-		
 		// Compare the user entered name to the name of the current record
 		
-		if (*person.name  == *name)
+		if (strcmp(person.name, name) == 0)
 		{
-			found = true;
-			break;	
+			found = true;			// If name is found in file, set flag to true
+			break;					// and break out of loop.
 		}
 		
+		// If name wasn't found in the first record.......
 		// Read the next record from the file.
 		records.read(reinterpret_cast<char *>(&person), sizeof(person));
+		
+		// Increment pos
 		pos++;
 
 	}
 	
-	if (found == true)
+	// Close the file
+	records.close();
+	
+	if (found == true)				// If the name was found...
 	{
-		cout << "Record found for " << name << ". Record #" << pos << endl;
+		cout << "Record found for " << name << ". Record #" << pos + 1 << endl;
 	}
-	else if (found == false)
+	else if (found == false)		// If the name was not found
 	{
 		cout << "No record found for " << name << endl;
+		pos = -1;					//Set pos to -1
 	}
 	
-	//Return the position in the file the name was found at
+	//Return the position in the file the name was found at, or a -1 if the name was not found.
+	cout << "pos is: " << pos << endl;
 	return pos;
 }
 
-//***************************************
-// display Contents function
-// (This Function currently works perfectly)
-//***************************************
+//*************************************************
+// searchAndDisplay function
+// This function will call the searchName function.
+// Then it will display the record that was found.
+//*************************************************
+
+int searchAndDisplay(Customer person)
+{
+	long recNum;					// To hold a record number
+	
+	cout << "***SEARCH AND DISPLAY***" << endl;
+	// Call the searchName function and assign it to recNum
+	recNum = searchName(person);
+	
+	if (recNum == -1)	// If name was not found, break out of this function
+	{
+		return 0;
+	}
+	
+	// Open the file
+	fstream records;
+	records.open("records.dat", ios::in | ios::binary);
+	
+	//Test for errors
+	if (!records)
+	{
+		cout << "Error opening file. Program aborting.\n";
+		return 0;
+	}
+	
+	//Move to the record and read it
+	records.seekg(recNum * sizeof(person), ios::beg);
+	records.read(reinterpret_cast<char *>(&person), sizeof(person));
+	
+	//Display it by calling showRecord
+	showRecord(person);
+	
+	//Close file
+	records.close();
+}
+
+//**************************************************
+// searchAndChange function
+// This function will call the searchName function.
+// Then it will allow the user to change the record.
+//**************************************************
+
+int searchAndChange(Customer person)
+{
+	long recNum;					// To hold a record number
+	
+	cout << "***SEARCH AND CHANGE***" << endl;
+	// Call the searchName function and assign it to recNum
+	recNum = searchName(person);
+	
+	if (recNum == -1)	// If name was not found, break out of this function
+	{
+		return 0;
+	}
+	
+	// Open the file
+	fstream records;
+	records.open("records.dat", ios::in | ios::out | ios::binary);
+	
+	//Test for errors
+	if (!records)
+	{
+		cout << "Error opening file. Program aborting.\n";
+		return 0;
+	}
+	
+	//Move to the record and read it
+	records.seekg(recNum * sizeof(person), ios::beg);
+	records.read(reinterpret_cast<char *>(&person), sizeof(person));
+	
+	//Display it by calling showRecord
+	showRecord(person);
+	
+	//Get the new record data.
+	cout << "\nENTER NEW DATA: \n";
+	
+	cout << "Name: ";
+	cin.getline(person.name, NAME_SIZE);
+		
+	cout << "Street Address: ";
+	cin.getline(person.address, ADDR_SIZE);
+		
+	cout << "City: ";
+	cin.getline(person.city, CITY_SIZE);
+		
+	cout << "State: ";
+	cin.getline(person.state, STATE_SIZE);
+		
+	cout << "Zip Code: ";
+	cin.getline(person.zip, ZIP_SIZE);
+		
+	cout << "Telephone number: ";
+	cin.getline(person.phone, PHONE_SIZE);
+		
+	cout << "Account Balance: $";
+	cin >> person.acct_balance;
+	cin.ignore(); 	// Skip over the remaining newline.
+		
+	cout << "Date of last payment (##/##/####): ";
+	cin.getline(person.payment_date, PAYMENT_DATE_SIZE);
+	
+	//Move back to the beginning of this record's position.
+	records.clear();
+	records.seekp(recNum * sizeof(person), ios::beg);
+	
+	//Write the new record over the current record.
+	records.write(reinterpret_cast<char *>(&person), sizeof(person));
+	
+	//Close the file
+	records.close();
+	
+}
+
+//**********************************************
+// searchAndDelete function
+//
+//**********************************************
+
+int searchAndDelete(Customer person)
+{
+	long recNum;					// To hold a record number
+	int count = 0;
+	
+	cout << "***SEARCH AND DELETE***" << endl;
+	// Call the searchName function and assign it to recNum
+	recNum = searchName(person);
+	
+	if (recNum == -1)	// If name was not found, break out of this function
+	{
+		return 0;
+	}
+	
+	// Open two files
+	fstream tempFile;						//Temp file
+	tempFile.open("temp.dat", ios::out | ios::binary);
+	
+	fstream records;						//Premade records.dat file
+	records.open("records.dat", ios::in | ios::binary);
+	
+	//Test for errors
+	if (!records)
+	{
+		cout << "Error opening file. Program aborting.\n";
+		return 0;
+	}
+	
+	int deleteLocation = recNum * sizeof(person);
+	
+//	//Move to the record and read it
+//	records.seekg(recNum * sizeof(person), ios::beg);
+//	records.read(reinterpret_cast<char *>(&person), sizeof(person));
+	
+	while(!records.eof())
+	{
+		if(deleteLocation != ((count) * sizeof(person)))
+		{
+			records.seekg((count) * sizeof(person), ios::beg);
+			records.read(reinterpret_cast<char *>(&person), sizeof(person));
+			tempFile.write(reinterpret_cast<char*>(&person), sizeof(person));
+			count++;
+		}
+	}
+	
+	tempFile.close();
+	records.close();
+	remove("records.dat");
+	rename("tempFile.dat", "records.dat");
+}
+
+
+//*******************************************
+// showRecord function
+// This function formats the results of the
+// read record and displays it properly for
+// being read by the user.
+//*******************************************
+
+void showRecord(Customer person)
+{
+	//Display the record.
+	cout << "\n\nName: " << person.name << endl;
+	cout << "Address: " << person.address << endl;
+	cout << "City: " << person.city << endl;
+	cout << "State: " << person.state << endl;
+	cout << "Zip: " << person.zip << endl;
+	cout << "Phone: " << person.phone << endl;
+	cout << "Account Balance: $" << person.acct_balance << endl;
+	cout << "Last payment date: " << person.payment_date << endl;	
+}
+
+
+//*****************************************************
+// 				displayContents function
+// This function will display the entire contents
+// of the binary file.
+//*****************************************************
 
 int displayContents(Customer person)
 {
-	
+	// Open the file
 	fstream records;
 	records.open("records.dat", ios::in | ios::binary);
 	
@@ -287,14 +505,7 @@ int displayContents(Customer person)
 	while (!records.eof())
 	{
 		//Display the record.
-		cout << "\n\nName: " << person.name << endl;
-		cout << "Address: " << person.address << endl;
-		cout << "City: " << person.city << endl;
-		cout << "State: " << person.state << endl;
-		cout << "Zip: " << person.zip << endl;
-		cout << "Phone: " << person.phone << endl;
-		cout << "Account Balance: $" << person.acct_balance << endl;
-		cout << "Last payment date: " << person.payment_date << endl;
+		showRecord(person);
 		
 		// Read the next record from the file.
 		records.read(reinterpret_cast<char *>(&person), sizeof(person));
@@ -303,11 +514,6 @@ int displayContents(Customer person)
 	cout << "\n\nEND OF FILE REACHED.\n";
 	records.close();
 }
-
-
-
-
-
 
 
 
